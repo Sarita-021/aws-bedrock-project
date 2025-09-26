@@ -21,12 +21,6 @@ resource "aws_rds_cluster" "aurora_serverless" {
   db_subnet_group_name   = aws_db_subnet_group.aurora.name
 }
 
-resource "aws_rds_cluster_instance" "aurora_instance" {
-  cluster_identifier = aws_rds_cluster.aurora_serverless.id
-  instance_class     = "db.t3.medium"
-  engine             = aws_rds_cluster.aurora_serverless.engine
-  engine_version     = aws_rds_cluster.aurora_serverless.engine_version
-}
 
 resource "aws_db_subnet_group" "aurora" {
   name       = "${var.cluster_identifier}-subnet-group"
