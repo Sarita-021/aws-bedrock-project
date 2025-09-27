@@ -37,6 +37,9 @@ override.tf.json
 .terraformrc
 terraform.rc
 __pycache__/**
+/__pycache__/
+# Ignore Python virtual environment directories
 
 .venv/
 venv/
+.streamlit/secrets.toml

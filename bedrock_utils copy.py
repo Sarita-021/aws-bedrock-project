@@ -1,50 +1,18 @@
 import boto3
 from botocore.exceptions import ClientError
 import json
-import streamlit as st # Import streamlit to access secrets
 
-# --- Credential and Region Configuration ---
-# Check for credentials stored in Streamlit secrets for deployment environment.
-try:
-    AWS_REGION = st.secrets.aws.region_name
-    AWS_ACCESS_KEY_ID = st.secrets.aws.aws_access_key_id
-    AWS_SECRET_ACCESS_KEY = st.secrets.aws.aws_secret_access_key
+# Initialize AWS Bedrock client
+bedrock = boto3.client(
+    service_name='bedrock-runtime',
+    region_name='us-east-1'  # Replace with your AWS region
+)
 
-    # Use explicit credentials when available
-    bedrock = boto3.client(
-        service_name='bedrock-runtime',
-        region_name=AWS_REGION,
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-    )
-
-    bedrock_kb = boto3.client(
-        service_name='bedrock-agent-runtime',
-        region_name=AWS_REGION,
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-    )
-
-    print("Boto3 clients initialized using st.secrets.")
-
-except KeyError:
-    # Fallback to default Boto3 credential chain (e.g., IAM role, ENV vars, config files)
-    # This is what failed originally, but is needed for flexibility.
-    DEFAULT_REGION = 'us-east-1' 
-
-    bedrock = boto3.client(
-        service_name='bedrock-runtime',
-        region_name=DEFAULT_REGION
-    )
-
-    bedrock_kb = boto3.client(
-        service_name='bedrock-agent-runtime',
-        region_name=DEFAULT_REGION
-    )
-    
-    print("Boto3 clients initialized using default credential chain (secrets not found).")
-# --- End of Configuration ---
-
+# Initialize Bedrock Knowledge Base client
+bedrock_kb = boto3.client(
+    service_name='bedrock-agent-runtime',
+    region_name='us-east-1'  # Replace with your AWS region
+)
 
 def valid_prompt(prompt, model_id):
     try:
