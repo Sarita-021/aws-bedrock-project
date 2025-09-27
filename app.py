@@ -29,20 +29,43 @@ if prompt := st.chat_input("What would you like to know?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
+    
+    response = ""
+    source_documents = set() # Use a set to store unique sources
 
     if valid_prompt(prompt, model_id):
-        # Query Knowledge Base
+        # 1. Query Knowledge Base
         kb_results = query_knowledge_base(prompt, kb_id)
         
-        # Prepare context from Knowledge Base results
-        context = "\n".join([result['content']['text'] for result in kb_results])
+        # 2. Extract context and sources from Knowledge Base results
+        context = []
         
-        # Generate response using LLM
-        full_prompt = f"Context: {context}\n\nUser: {prompt}\n\n"
+        for result in kb_results:
+            # Extract content for the LLM prompt
+            context.append(result['content']['text'])
+            
+            # Extract and clean up the source URI for display
+            uri = result['location']['s3Location']['uri']
+            source_documents.add(uri)
+            
+        context_string = "\n".join(context)
+        
+        # 3. Generate response using LLM
+        full_prompt = f"Context: {context_string}\n\nUser: {prompt}\n\n"
         response = generate_response(full_prompt, model_id, temperature, top_p)
     else:
         response = "I'm unable to answer this, please try again"
     
+    # 4. Format and display the assistant response and sources
+    assistant_output = response
+    
+    if source_documents:
+        assistant_output += "\n\n---\n\n**Sources Used for Retrieval:**"
+        for source_uri in source_documents:
+            # Display only the file name, for better readability
+            file_name = source_uri.split('/')[-1]
+            assistant_output += f"\n- {file_name} (`{source_uri}`)"
+            
     # Display assistant response
     with st.chat_message("assistant"):
         st.markdown(response)
