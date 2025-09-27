@@ -6,9 +6,9 @@ import streamlit as st # Import streamlit to access secrets
 # --- Credential and Region Configuration ---
 # Check for credentials stored in Streamlit secrets for deployment environment.
 try:
-    AWS_REGION = st.secrets.aws.region_name
-    AWS_ACCESS_KEY_ID = st.secrets.aws.aws_access_key_id
-    AWS_SECRET_ACCESS_KEY = st.secrets.aws.aws_secret_access_key
+    AWS_REGION = st.secrets["region_name"]
+    AWS_ACCESS_KEY_ID = st.secrets["aws_access_key_id"]
+    AWS_SECRET_ACCESS_KEY = st.secrets["aws_secret_access_key"]
 
     # Use explicit credentials when available
     bedrock = boto3.client(
