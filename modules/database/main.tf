@@ -21,6 +21,14 @@ resource "aws_rds_cluster" "aurora_serverless" {
   db_subnet_group_name   = aws_db_subnet_group.aurora.name
 }
 
+resource "aws_rds_cluster_instance" "aurora_instance" {
+  count              = 1
+  identifier         = "${var.cluster_identifier}-instance-${count.index}"
+  cluster_identifier = aws_rds_cluster.aurora_serverless.id
+  instance_class     = "db.serverless" # For Aurora Serverless v2, use "db.serverless"
+  engine             = aws_rds_cluster.aurora_serverless.engine
+  engine_version     = aws_rds_cluster.aurora_serverless.engine_version
+}
 
 resource "aws_db_subnet_group" "aurora" {
   name       = "${var.cluster_identifier}-subnet-group"
@@ -59,6 +67,8 @@ resource "aws_security_group" "aurora_sg" {
 resource "random_password" "master_password" {
   length  = 16
   special = true
+  # This set explicitly excludes the RDS-forbidden characters: '/', '@', '"', ' '
+  override_special = "!#$%&()*+-.:;<=>?[]^{|}~"
 }
 
 resource "aws_secretsmanager_secret" "aurora_secret" {
